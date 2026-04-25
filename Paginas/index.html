@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="pt-BR">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>SilkPets</title>
+		<link rel="stylesheet" href="Style.css" />
+	</head>
+	<body>
+		<header class="topbar">
+			<div class="shell topbar__inner">
+				<a class="brand" href="#">
+					<span class="brand__text">SilkPets</span>
+					<img class="petIcon" src="C:\Users\lucas\OneDrive\Documentos\GitHub\SilkPets\Imagens\petIcon.png" alt="">
+				</a>
+
+				<label class="search" aria-label="Pesquisar">
+					<span class="search__icon" aria-hidden="true">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2" />
+							<path d="M16.2 16.2 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+						</svg>
+					</span>
+					<input class="search__input" type="search" placeholder="Pesquisar..." />
+				</label>
+
+				<div class="actions">
+					<a class="btn btn--meus" href="#">
+						<span class="btn__icons" aria-hidden="true">🐾</span>
+						<span class="btn__label">MEUS PETS</span>
+					</a>
+					<a class="avatar" href="#" aria-label="Perfil">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M12 12a4.2 4.2 0 1 0-4.2-4.2A4.2 4.2 0 0 0 12 12Z" fill="currentColor" />
+							<path d="M4.5 20.2c1.9-4.3 13.1-4.3 15 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+						</svg>
+					</a>
+				</div>
+			</div>
+		</header>
+
+		<nav class="tabs">
+			<div class="shell tabs__inner" role="tablist" aria-label="Seções">
+				<a class="tab" href="#consultas" role="tab">CONSULTAS</a>
+				<a class="tab" href="#vacinas" role="tab">VACINAS</a>
+				<a class="tab" href="#servicos" role="tab">SERVIÇOS</a>
+			</div>
+		</nav>
+
+		<main class="page">
+			<div class="shell">
+				<section class="cards" aria-label="Pets">
+					<article class="pet-card" id="consultas">
+						<div class="pet-card__left">
+							<div class="pet-media">
+								<img
+									src="C:\Users\lucas\OneDrive\Documentos\GitHub\SilkPets\Imagens\gatosLegais.png"
+									alt="Foto do pet"
+									loading="lazy"
+								/>
+							</div>
+							<h2 class="pet-name">Gatos legais</h2>
+						</div>
+
+						<div class="pet-card__right">
+							<ul class="pet-info">
+								<li>Idade: 2 anos</li>
+								<li>Exames: pronto para a retirada</li>
+								<li>Veterinário: fulano</li>
+								<li>Vacinas: em dia</li>
+								<li>Descrição: a maior cat band de todos os tempos</li>
+							</ul>
+
+							<div class="pet-actions">
+								<a class="btn btn--ghost" href="#vacinas">Vacinas</a>
+								<a class="btn btn--ghost" href="#consultas">Consultas</a>
+							</div>
+						</div>
+					</article>
+
+					<article class="pet-card" id="vacinas">
+						<div class="pet-card__left">
+							<div class="pet-media">
+								<img
+									src="C:\Users\lucas\OneDrive\Documentos\GitHub\SilkPets\Imagens\gatoJoia.jpg"
+									alt="Foto do pet"
+									loading="lazy"
+								/>
+							</div>
+							<h2 class="pet-name">Gato Joia</h2>
+						</div>
+
+						<div class="pet-card__right">
+							<ul class="pet-info">
+								<li>Idade: 459 anos</li>
+								<li>Exames: Atrasados</li>
+								<li>Veterinário: fulano de tal</li>
+								<li>Vacinas: atrasadas</li>
+								<li>Descrição: o primeiro de todos</li>
+							</ul>
+                            
+                            <div class="pet-actions">
+								<a class="btn btn--ghost" href="#vacinas">Vacinas</a>
+								<a class="btn btn--ghost" href="#consultas">Consultas</a>
+							</div>
+						</div>
+					</article>
+				</section>
+			</div>
+		</main>
+	</body>
+</html>
