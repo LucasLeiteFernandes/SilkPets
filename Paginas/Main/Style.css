@@ -22,7 +22,7 @@ body {
 	color: var(--ink);
 	font-family: Georgia, "Times New Roman", Times, serif;
 	background-color: #efefef;
-	background-image: url("C:/Users/lucas/OneDrive/Documentos/GitHub/SilkPets/Imagens/fundoPatas.png");
+	background-image: url("./Imagens/fundoPatas.png");
 	background-size: 300, 300px;
 }
 
