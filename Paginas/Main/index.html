@@ -29,7 +29,8 @@
 						<span class="btn__icons" aria-hidden="true">🐾</span>
 						<span class="btn__label">MEUS PETS</span>
 					</a>
-					<a class="avatar" href="#" aria-label="Perfil">
+					<button class="btn btn--login" id="btnLogin">LOGIN</button>
+					<a class="avatar" href="#" aria-label="Perfil" id="btnPerfil">
 						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 							<path d="M12 12a4.2 4.2 0 1 0-4.2-4.2A4.2 4.2 0 0 0 12 12Z" fill="currentColor" />
 							<path d="M4.5 20.2c1.9-4.3 13.1-4.3 15 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
@@ -108,5 +109,68 @@
 				</section>
 			</div>
 		</main>
+
+		<!-- Modal de Login -->
+		<div class="modal" id="modalLogin">
+			<div class="modal__content">
+				<button class="modal__close" id="closeLogin">&times;</button>
+				<h2 class="modal__title">Login</h2>
+				<form class="modal__form" id="formLogin">
+					<div class="form__group">
+						<label for="loginEmail">Email:</label>
+						<input type="email" id="loginEmail" name="email" required placeholder="seu@email.com" />
+					</div>
+					<div class="form__group">
+						<label for="loginPassword">Senha:</label>
+						<input type="password" id="loginPassword" name="password" required placeholder="Sua senha" />
+					</div>
+					<button type="submit" class="btn btn--primary">Entrar</button>
+				</form>
+				<p class="modal__footer">
+					Não tem conta? 
+					<button class="link-btn" id="switchToCadastro">Cadastre-se aqui</button>
+				</p>
+			</div>
+		</div>
+
+		<!-- Modal de Cadastro -->
+		<div class="modal" id="modalCadastro">
+			<div class="modal__content">
+				<button class="modal__close" id="closeCadastro">&times;</button>
+				<h2 class="modal__title">Cadastro</h2>
+				<form class="modal__form" id="formCadastro">
+					<div class="form__group">
+						<label for="cadastroNome">Nome Completo:</label>
+						<input type="text" id="cadastroNome" name="nome" required placeholder="Seu nome completo" />
+					</div>
+					<div class="form__group">
+						<label for="cadastroEmail">Email:</label>
+						<input type="email" id="cadastroEmail" name="email" required placeholder="seu@email.com" />
+					</div>
+					<div class="form__group">
+						<label for="cadastroTelefone">Telefone:</label>
+						<input type="tel" id="cadastroTelefone" name="telefone" placeholder="(XX) XXXXX-XXXX" />
+					</div>
+					<div class="form__group">
+						<label for="cadastroPassword">Senha:</label>
+						<input type="password" id="cadastroPassword" name="password" required placeholder="Crie uma senha" />
+					</div>
+					<div class="form__group">
+						<label for="cadastroConfirm">Confirmar Senha:</label>
+						<input type="password" id="cadastroConfirm" name="confirm" required placeholder="Confirme sua senha" />
+					</div>
+					<button type="submit" class="btn btn--primary">Cadastrar</button>
+				</form>
+				<p class="modal__footer">
+					Já tem conta? 
+					<button class="link-btn" id="switchToLogin">Faça login aqui</button>
+				</p>
+			</div>
+		</div>
+
+		<!-- Overlay para fechar modais -->
+		<div class="modal__overlay" id="modalOverlay"></div>
+
+		<script src="Script.js"></script>
 	</body>
 </html>
