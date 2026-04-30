@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pt-BR">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>SilkPets | Serviços</title>
+		<link rel="stylesheet" href="servicos.css" />
+	</head>
+	<body>
+		<header class="topbar">
+			<div class="shell topbar__inner">
+				<a class="brand" href="../Main/index.html">
+					<span class="brand__text">SilkPets</span>
+					<img class="petIcon" src="../../Imagens/petIcon.png" alt="" />
+				</a>
+
+				<label class="search" aria-label="Pesquisar">
+					<span class="search__icon" aria-hidden="true">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2" />
+							<path d="M16.2 16.2 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+						</svg>
+					</span>
+					<input class="search__input" type="search" placeholder="Pesquisar..." />
+				</label>
+
+				<div class="actions">
+					<a class="btn btn--meus" href="#">
+						<span class="btn__icons" aria-hidden="true">🐾</span>
+						<span class="btn__label">MEUS PETS</span>
+					</a>
+					<a class="avatar" href="#" aria-label="Perfil">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M12 12a4.2 4.2 0 1 0-4.2-4.2A4.2 4.2 0 0 0 12 12Z" fill="currentColor" />
+							<path d="M4.5 20.2c1.9-4.3 13.1-4.3 15 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+						</svg>
+					</a>
+				</div>
+			</div>
+		</header>
+
+		<nav class="tabs">
+			<div class="shell tabs__inner" role="tablist" aria-label="Seções">
+				<a class="tab" href="../consultas/consultas.html" role="tab">CONSULTAS</a>
+				<a class="tab" href="../vacinas/vacinas.html" role="tab">VACINAS</a>
+				<a class="tab tab--active" href="servicos.html" role="tab" aria-current="page">SERVIÇOS</a>
+			</div>
+		</nav>
+
+		<main class="page">
+			<section class="shell services-grid" aria-label="Serviços disponíveis">
+				<article class="service-card">
+					<h2 class="service-card__title">SERVIÇOS DE EMERGÊNCIA</h2>
+					<ul class="service-list">
+						<li class="service-item service-item--head">Veterinários perto de você</li>
+						<li class="service-item">Petz: Rua blabla, 425 a 10 minutos de você</li>
+						<li class="service-item">Cão Bernardo: Rua exemplo, 425 a 10 minutos de você</li>
+					</ul>
+				</article>
+
+				<article class="service-card">
+					<h2 class="service-card__title">SERVIÇOS DE MICROCHIP</h2>
+					<ul class="service-list">
+						<li class="service-item service-item--head">Veterinários perto de você</li>
+						<li class="service-item">DR Hato: Rua blabla, 425 a 10 minutos de você</li>
+						<li class="service-item">Hospital Público: Rua exemplo, 425 a 10 minutos de você</li>
+					</ul>
+				</article>
+
+				<article class="service-card service-card--wide">
+					<h2 class="service-card__title">ATENDIMENTO A DOMICILIO</h2>
+					<ul class="service-list">
+						<li class="service-item service-item--head">Veterinários prontos para atender</li>
+						<li class="service-item">Dr Fulano</li>
+						<li class="service-item">Dr Poggers</li>
+					</ul>
+				</article>
+			</section>
+		</main>
+	</body>
+</html>

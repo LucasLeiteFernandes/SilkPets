@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="pt-BR">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>SilkPets | Consultas</title>
+		<link rel="stylesheet" href="consultas.css" />
+	</head>
+	<body>
+		<header class="topbar">
+			<div class="shell topbar__inner">
+				<a class="brand" href="../Main/index.html">
+					<span class="brand__text">SilkPets</span>
+					<img class="petIcon" src="../../Imagens/petIcon.png" alt="" />
+				</a>
+
+				<label class="search" aria-label="Pesquisar">
+					<span class="search__icon" aria-hidden="true">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2" />
+							<path d="M16.2 16.2 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+						</svg>
+					</span>
+					<input class="search__input" type="search" placeholder="Pesquisar..." />
+				</label>
+
+				<div class="actions">
+					<a class="btn btn--meus" href="#">
+						<span class="btn__icons" aria-hidden="true">🐾</span>
+						<span class="btn__label">MEUS PETS</span>
+					</a>
+					<a class="avatar" href="#" aria-label="Perfil">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M12 12a4.2 4.2 0 1 0-4.2-4.2A4.2 4.2 0 0 0 12 12Z" fill="currentColor" />
+							<path d="M4.5 20.2c1.9-4.3 13.1-4.3 15 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+						</svg>
+					</a>
+				</div>
+			</div>
+		</header>
+
+		<nav class="tabs">
+			<div class="shell tabs__inner" role="tablist" aria-label="Seções">
+				<a class="tab tab--active" href="consultas.html" role="tab" aria-current="page">CONSULTAS</a>
+				<a class="tab" href="../vacinas/vacinas.html" role="tab">VACINAS</a>
+				<a class="tab" href="#servicos" role="tab">SERVIÇOS</a>
+			</div>
+		</nav>
+
+		<main class="page">
+			<section class="shell consult-sheet" aria-label="Agendamento de consulta">
+				<div class="consult-card">
+					<div class="consult-photo">
+						<img src="../../Imagens/gatoJoia.jpg" alt="Foto do pet" />
+					</div>
+
+					<div class="consult-calendar">
+						<div class="calendar" aria-label="Calendário de consultas">
+							<div class="calendar__head">
+								<span class="calendar__month">ABRIL 2025 <span class="calendar__caret">›</span></span>
+								<div class="calendar__nav">
+									<button type="button" class="calendar__nav-btn" aria-label="Mês anterior">‹</button>
+									<button type="button" class="calendar__nav-btn" aria-label="Próximo mês">›</button>
+								</div>
+							</div>
+
+							<div class="calendar__grid calendar__grid--days">
+								<span>DOM</span>
+								<span>SEG</span>
+								<span>TER</span>
+								<span>QUA</span>
+								<span>QUI</span>
+								<span>SEX</span>
+								<span>SAB</span>
+							</div>
+
+							<div class="calendar__grid calendar__grid--dates">
+								<span class="is-empty"></span>
+								<span class="is-empty"></span>
+								<span class="is-marked">1</span>
+								<span>2</span>
+								<span>3</span>
+								<span>4</span>
+								<span>5</span>
+
+								<span>6</span>
+								<span>7</span>
+								<span>8</span>
+								<span>9</span>
+								<span>10</span>
+								<span>11</span>
+								<span>12</span>
+
+								<span>13</span>
+								<span>14</span>
+								<span>15</span>
+								<span>16</span>
+								<span>17</span>
+								<span>18</span>
+								<span>19</span>
+
+								<span class="is-selected">20</span>
+								<span>21</span>
+								<span>22</span>
+								<span>23</span>
+								<span>24</span>
+								<span>25</span>
+								<span>26</span>
+
+								<span>27</span>
+								<span>28</span>
+								<span>29</span>
+								<span>30</span>
+							</div>
+
+							<div class="calendar__time">
+								<span class="calendar__time-label">Horas</span>
+								<input class="calendar__time-input" type="time" value="09:11" />
+							</div>
+						</div>
+					</div>
+
+					<h2 class="consult-pet-name">Gato Joia</h2>
+
+					<div class="consult-actions">
+						<button type="button" class="btn btn--ghost">Adicionar</button>
+						<button type="button" class="btn btn--ghost">Remover</button>
+					</div>
+				</div>
+			</section>
+		</main>
+	</body>
+</html>
