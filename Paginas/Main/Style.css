@@ -57,6 +57,7 @@ body {
 	font-size: 34px;
 	letter-spacing: 0.5px;
 	text-shadow: 0 2px 0 rgba(0, 0, 0, 0.55);
+	text-decoration:none;
 }
 
 .brand__mark {
@@ -67,6 +68,7 @@ body {
 .search {
 	flex: 1;
 	display: grid;
+	min-width: 400px;
 	grid-template-columns: 42px 1fr;
 	align-items: center;
 	height: 42px;

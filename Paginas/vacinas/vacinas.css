@@ -72,6 +72,7 @@ body {
 	display: grid;
 	grid-template-columns: 42px 1fr;
 	align-items: center;
+	width: 400px;
 	height: 42px;
 	background: #dedede;
 	border: 2px solid rgba(0, 0, 0, 0.6);
