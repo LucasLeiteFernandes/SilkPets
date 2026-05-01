@@ -162,6 +162,14 @@ body {
 	padding: 12px 0 14px;
 }
 
+.brand {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	color: #fff;
+	text-decoration: none;
+}
+
 .tab {
 	height: 34px;
 	display: grid;

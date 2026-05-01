@@ -23,7 +23,7 @@ body {
 	color: var(--ink);
 	font-family: Georgia, "Times New Roman", Times, serif;
 	background-color: #efefef;
-	background-image: url("image.png");
+	background-image: url("./imagens/image.png");
 	background-size: 260px 260px;
 }
 
@@ -57,6 +57,9 @@ body {
 	font-size: 34px;
 	letter-spacing: 0.5px;
 	text-shadow: 0 2px 0 rgba(0, 0, 0, 0.55);
+	color: #fff;
+	text-decoration: none;
+	
 }
 
 .brand__mark {
