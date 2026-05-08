@@ -67,11 +67,11 @@ body {
 }
 
 .search {
-	flex: 1;
 	display: grid;
 	grid-template-columns: 42px 1fr;
 	align-items: center;
 	height: 42px;
+	width: 400px;
 	background: #dedede;
 	border: 2px solid rgba(0, 0, 0, 0.6);
 	border-radius: 8px;
