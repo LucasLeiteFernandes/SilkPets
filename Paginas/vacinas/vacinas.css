@@ -67,6 +67,10 @@ body {
 	filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.55));
 }
 
+.petIcon {
+	width: 56px;
+}
+
 .search {
 	display: grid;
 	grid-template-columns: 42px 1fr;
