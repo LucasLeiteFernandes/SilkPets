@@ -130,9 +130,9 @@ const Pet = mongoose.model('pets', petSchema);
 function normalizeUser(user) {
     return {
         id: String(user._id),
-        nome: user.db_name,
-        email: user.db_email,
-        telefone: user.db_phone || '',
+        nome: user.db_nome || user.db_name || user.name || '',
+        email: user.db_email || user.email || '',
+        telefone: user.db_phone || user.phone || '',
     };
 }
 
@@ -168,8 +168,8 @@ app.get("/api/user/register", function(request, response) {
 
 app.post("/api/users/register", async (request, response) => {
     try {
-        
         const { nome, email, telefone, password } = request.body;
+        const normalizedEmail = String(email || '').toLowerCase().trim();
 
         if (!nome || !email || !password) {
             return response.status(400).json({ message: 'Nome, email e senha sao obrigatorios.' });
@@ -177,25 +177,32 @@ app.post("/api/users/register", async (request, response) => {
         if (String(password).length < 6) {
             return response.status(400).json({ message: 'A senha deve ter pelo menos 6 caracteres.' });
         }
-        const existingUser = await User.findOne({ email: String(email).toLowerCase().trim() });
+        const existingUser = await usuarios.findOne({ db_email: normalizedEmail });
         if (existingUser) {
             return response.status(409).json({ message: 'Ja existe um usuario com este email.' });
         }
         const passwordHash = await bcrypt.hash(String(password), 10);
 
-        var data = {db_nome: nome, db_email: email, db_phone: telefone, db_password: password}
+        const data = {
+            db_nome: String(nome).trim(),
+            db_email: normalizedEmail,
+            db_phone: String(telefone || '').trim(),
+            db_password: passwordHash,
+        };
 
-        usuarios.insertOne(data, function(err, result){
-            if (err){
-                console.log("EXPLOSAO INFINITA".red)
-                console.log(err)
-            } else {
-                message: 'Usuario cadastrado com sucesso.'
-            }
-        })
+        const result = await usuarios.insertOne(data);
+        const savedUser = {
+            _id: result.insertedId,
+            ...data,
+        };
 
-        console.log(data)
-        console.log("RESTAURAR REALIDADE".rainbow)
+        request.session.ownerId = String(savedUser._id);
+        request.session.ownerName = savedUser.db_nome;
+
+        return response.status(201).json({
+            message: 'Usuario cadastrado com sucesso.',
+            user: normalizeUser(savedUser),
+        });
     } catch (error) {
         console.log("APAGAR REALIDADE".red)
         if (error && error.code === 11000) {
@@ -217,41 +224,36 @@ app.get("/api/user/login", function(request, response) {
 app.post('/api/users/login', async (request, response) => {
     try {
         const { email, password } = request.body;
+        const normalizedEmail = String(email || '').toLowerCase().trim();
         
         if (!email || !password) {
             return response.status(400).json({ message: 'Email e senha sao obrigatorios.' });
         }
 
-        var data = { db_email: email, db_password: password };
-
-        const items = await usuarios.find(data).toArray();
-
-        if (items.length === 0) {
+        const owner = await usuarios.findOne({ db_email: normalizedEmail });
+        if (!owner) {
             return response.status(401).json({ message: 'Credenciais invalidas.' });
         }
 
-        let usuario = items[0];
-        //console.log(usuario)
-        // Busca o mesmo usuário pelo Mongoose para ter o _id compatível com o resto da aplicação
-        const owner = await usuarios.findOne({ db_email: email });
-        //console.log(owner)
-        if (!owner) {
-            return response.status(404).json({ message: 'Usuario nao encontrado no sistema.' });
+        const storedPassword = owner.db_password || owner.passwordHash || '';
+        const passwordMatches = storedPassword.startsWith('$2')
+            ? await bcrypt.compare(String(password), storedPassword)
+            : storedPassword === String(password);
+
+        if (!passwordMatches) {
+            return response.status(401).json({ message: 'Credenciais invalidas.' });
         }
 
         console.log("logado:", owner);
 
-        request.session.ownerId = owner._id;
+        request.session.ownerId = String(owner._id);
         request.session.ownerName = owner.db_nome;
         console.log("request: " + request.session.ownerId)
         console.log("   ._id: " + owner._id)
-        response.json({
+        return response.json({
             message: 'Login realizado com sucesso.',
-            user: {
-                ...normalizeUser(owner),
-                ownerId: owner._id, // <-- isso alimenta o /api/pets
-            },
-        })
+            user: normalizeUser(owner),
+        });
         
 
     } catch (_error) {
@@ -263,12 +265,12 @@ app.post('/api/users/login', async (request, response) => {
 app.get('/api/pets', async (request, response) => {
     console.log("AAAAAAAAAAAAAAAAAAAAAAAAA".rainbow)
     try {
-
-        const filters = {};
-        console.log(request.session.ownerId)
-        if (request.session.ownerId) {
-            filters.db_owner = request.session.ownerId;
+        if (!request.session.ownerId) {
+            return response.json({ pets: [] });
         }
+
+        const filters = { db_owner: request.session.ownerId };
+        console.log(request.session.ownerId)
 
 
         const pet = await pets.find(filters).toArray()//.populate('posts', 'db_owner')//.sort({ createdAt: -1 });
@@ -283,44 +285,49 @@ app.get('/api/pets', async (request, response) => {
 
 app.post('/api/pets', async (request, response) => {
     try {
-        const { ownerId, nome, idade, exames, veterinario, vacinas, descricao, imagem } = request.body;
-        const owner = await usuarios.findOne(request.session.ownerId);
-        console.log("ownerId recebido:", ownerId);
+        const { nome, idade, exames, veterinario, vacinas, descricao, imagem } = request.body;
+        const sessionOwnerId = request.session.ownerId;
+        const owner = sessionOwnerId ? await usuarios.findOne({ _id: new mongodb.ObjectId(sessionOwnerId) }) : null;
+        console.log("ownerId recebido:", request.body.ownerId);
         console.log("owner encontrado:", owner);
         //console.log("collection do User:", usuarios.collection.name)
         console.log("body recebido:", request.body);
 
-        if (!ownerId || !nome || !idade) {
+        if (!sessionOwnerId) {
+            return response.status(401).json({ message: 'Voce precisa estar logado para cadastrar um pet.' });
+        }
+
+        if (!nome || !idade) {
             console.log("tutores")
-            return response.status(400).json({ message: 'Tutor, nome e idade do pet sao obrigatorios.' });
+            return response.status(400).json({ message: 'Nome e idade do pet sao obrigatorios.' });
         }
 
         console.log("/api/pets: "+ request.session.ownerId)
-        if (!ownerId) {
+        if (!owner) {
             console.log("usario nao encontrado")
             return response.status(404).json({ message: 'Usuario responsavel nao encontrado.' });
         }
 
-        var data = { db_owner: ownerId, db_ownerName: request.session.ownerName, db_name: nome, db_idade: idade, db_exames: exames, 
-            db_veterinario: veterinario, db_vacinas: vacinas, db_descricao: descricao, db_imagem: imagem}
-        pets.insertOne(data, function(err, result){
-            if (err){
-                console.log("EXPLOSAO INFINITA".red)
-                console.log(err)
-            } else {
-                message: 'Pet cadastrado com sucesso.'
-            }
-        })
-        const savedPet = await pets.findById(pet._id).populate('owner', 'name');
+        const data = {
+            db_owner: sessionOwnerId,
+            db_ownerName: request.session.ownerName || owner.db_nome,
+            db_name: String(nome).trim(),
+            db_idade: String(idade).trim(),
+            db_exames: String(exames || '').trim() || 'Nao informado',
+            db_veterinario: String(veterinario || '').trim() || 'Nao informado',
+            db_vacinas: String(vacinas || '').trim() || 'Nao informado',
+            db_descricao: String(descricao || '').trim() || 'Sem descricao cadastrada.',
+            db_imagem: String(imagem || '').trim() || DEFAULT_PET_IMAGE,
+        };
+        const result = await pets.insertOne(data);
+        const savedPet = {
+            _id: result.insertedId,
+            ...data,
+        };
 
         return response.status(201).json({
             message: 'Pet cadastrado com sucesso.',
-            pet: {...normalizePet(data)},
-            ownerId: ownerId,
-            user: {
-                ...normalizeUser(usuario),
-                ownerId: owner._id, // <-- isso alimenta o /api/pets
-            },
+            pet: normalizePet(savedPet),
         });
     } catch (_error) {
         console.log(_error)

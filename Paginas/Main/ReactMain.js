@@ -109,7 +109,9 @@ function PetCardsApp({ searchInput }) {
 			
 			try {
 				console.log("teste 1")
-				const response = await fetch(`${apiBaseUrl2}/api/pets`);
+				const response = await fetch(`${apiBaseUrl2}/api/pets`, {
+					credentials: 'include',
+				});
 				const contentType = response.headers.get('content-type') || '';
 				const data = contentType.includes('application/json') ? await response.json() : {};
 
@@ -138,12 +140,18 @@ function PetCardsApp({ searchInput }) {
 			loadPets();
 		}
 
+		function handleUserChanged() {
+			loadPets();
+		}
+
 		loadPets();
 		window.addEventListener('pets:changed', handlePetsChanged);
+		window.addEventListener('user:changed', handleUserChanged);
 
 		return () => {
 			shouldUpdate = false;
 			window.removeEventListener('pets:changed', handlePetsChanged);
+			window.removeEventListener('user:changed', handleUserChanged);
 		};
 	}, []);
 
@@ -185,7 +193,7 @@ function PetCardsApp({ searchInput }) {
 	}
 
 	if (!pets.length) {
-		return <EmptyState title="Nenhum pet cadastrado" description="Cadastre um usuario e depois o seu primeiro pet para exibi-lo aqui." />;
+		return <EmptyState title="Nenhum pet cadastrado" description="Faca login e cadastre um pet para exibir apenas os animais do usuario conectado." />;
 	}
 
 	return (
