@@ -195,6 +195,29 @@ body {
 	padding: 26px 0 56px;
 }
 
+.page-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 18px;
+	margin-bottom: 26px;
+}
+
+.page-title {
+	margin: 0;
+	font-size: 42px;
+	line-height: 1;
+}
+
+.page-subtitle {
+	margin: 0;
+	padding: 12px 16px;
+	border-radius: 12px;
+	background: rgba(255, 255, 255, 0.75);
+	border: 2px solid rgba(0, 0, 0, 0.15);
+	font-size: 18px;
+}
+
 .cards {
 	display: flex;
 	flex-direction: column;
@@ -453,8 +476,44 @@ body {
 	box-shadow: 0 0 8px rgba(255, 90, 95, 0.2);
 }
 
+.form__group textarea {
+	padding: 12px 14px;
+	border: 2px solid rgba(0, 0, 0, 0.3);
+	border-radius: 8px;
+	font-size: 16px;
+	font-family: inherit;
+	resize: vertical;
+	min-height: 110px;
+	transition: border-color 0.3s;
+}
+
+.form__group textarea:focus {
+	outline: none;
+	border-color: var(--red);
+	box-shadow: 0 0 8px rgba(255, 90, 95, 0.2);
+}
+
 .form__group input::placeholder {
 	color: rgba(0, 0, 0, 0.4);
+}
+
+.form__group textarea::placeholder {
+	color: rgba(0, 0, 0, 0.4);
+}
+
+.form__message {
+	min-height: 24px;
+	margin: 0;
+	font-size: 14px;
+	font-weight: 700;
+}
+
+.form__message--error {
+	color: #a2191f;
+}
+
+.form__message--success {
+	color: #1f7a32;
 }
 
 .btn--primary {
@@ -486,6 +545,12 @@ body {
 	margin: 0;
 }
 
+.modal__footer--left {
+	text-align: left;
+	font-size: 14px;
+	margin-bottom: 6px;
+}
+
 .link-btn {
 	background: none;
 	border: none;
@@ -514,5 +579,28 @@ body {
 .btn--login:hover {
 	background: var(--red-strong);
 }
+
+.modal__content--wide {
+	width: min(92%, 620px);
+}
+
+@media (max-width: 900px) {
+	.page-header {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.page-title {
+		font-size: 36px;
+	}
+
+	.page-subtitle {
+		width: 100%;
+	}
+
+	.modal__content--wide {
+		width: min(92%, 450px);
+	}
+	}
 
 

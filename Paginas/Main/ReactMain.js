@@ -1,18 +1,31 @@
 const { createRoot } = ReactDOM;
 const { useEffect, useMemo, useState } = React;
 
-function extractPets() {
-	return Array.from(document.querySelectorAll('.cards .pet-card')).map((card) => ({
-		id: card.id,
-		name: card.querySelector('.pet-name')?.textContent?.trim() || '',
-		image: card.querySelector('.pet-media img')?.getAttribute('src') || '',
-		alt: card.querySelector('.pet-media img')?.getAttribute('alt') || 'Foto do pet',
-		info: Array.from(card.querySelectorAll('.pet-info li')).map((item) => item.textContent.trim()),
-		actions: Array.from(card.querySelectorAll('.pet-actions a')).map((link) => ({
-			label: link.textContent.trim(),
-			href: link.getAttribute('href') || '#',
-		})),
-	}));
+const DEFAULT_PET_IMAGE = '/Paginas/Main/Imagens/petIcon.png';
+
+function createPetActions() {
+	return [
+		{ label: 'Vacinas', href: '../vacinas/vacinas.html' },
+		{ label: 'Consultas', href: '../consultas/consultas.html' },
+	];
+}
+
+function normalizePet(pet) {
+	return {
+		id: pet.id || `pet-${pet.nome || 'sem-nome'}`,
+		name: pet.nome || 'Pet sem nome',
+		image: pet.imagem || DEFAULT_PET_IMAGE,
+		alt: pet.nome ? `Foto de ${pet.nome}` : 'Foto do pet',
+		info: [
+			`Tutor: ${pet.ownerName || 'Nao informado'}`,
+			`Idade: ${pet.idade || 'Nao informada'}`,
+			`Exames: ${pet.exames || 'Nao informado'}`,
+			`Veterinario: ${pet.veterinario || 'Nao informado'}`,
+			`Vacinas: ${pet.vacinas || 'Nao informado'}`,
+			`Descricao: ${pet.descricao || 'Sem descricao cadastrada.'}`,
+		],
+		actions: createPetActions(),
+	};
 }
 
 function PetCard({ pet }) {
@@ -44,27 +57,75 @@ function PetCard({ pet }) {
 	);
 }
 
-function EmptyState() {
+function EmptyState({ title, description }) {
 	return (
 		<article className="pet-card">
 			<div className="pet-card__left">
 				<div className="pet-media">
-					<img src="./Imagens/petIcon.png" alt="Nenhum pet encontrado" loading="lazy" />
+					<img src={DEFAULT_PET_IMAGE} alt={title} loading="lazy" />
 				</div>
-				<h2 className="pet-name">Nenhum pet encontrado</h2>
+				<h2 className="pet-name">{title}</h2>
 			</div>
 
 			<div className="pet-card__right">
 				<ul className="pet-info">
-					<li>Tente pesquisar por nome, exame, vacina ou veterinario.</li>
+					<li>{description}</li>
 				</ul>
 			</div>
 		</article>
 	);
 }
 
-function PetCardsApp({ initialPets, searchInput }) {
+function PetCardsApp({ searchInput }) {
+	const [pets, setPets] = useState([]);
+	const [fetchStatus, setFetchStatus] = useState('loading');
+	const [fetchError, setFetchError] = useState('');
 	const [searchTerm, setSearchTerm] = useState(searchInput?.value || '');
+
+	useEffect(() => {
+		let shouldUpdate = true;
+
+		async function loadPets() {
+			setFetchStatus('loading');
+
+			try {
+				const response = await fetch('/api/pets');
+				const contentType = response.headers.get('content-type') || '';
+				const data = contentType.includes('application/json') ? await response.json() : {};
+
+				if (!response.ok) {
+					throw new Error(data.message || 'Nao foi possivel carregar os pets.');
+				}
+
+				if (!shouldUpdate) {
+					return;
+				}
+
+				setPets(Array.isArray(data.pets) ? data.pets.map(normalizePet) : []);
+				setFetchError('');
+				setFetchStatus('ready');
+			} catch (error) {
+				if (!shouldUpdate) {
+					return;
+				}
+
+				setFetchError(error.message || 'Nao foi possivel carregar os pets. Verifique se o servidor esta rodando.');
+				setFetchStatus('error');
+			}
+		}
+
+		function handlePetsChanged() {
+			loadPets();
+		}
+
+		loadPets();
+		window.addEventListener('pets:changed', handlePetsChanged);
+
+		return () => {
+			shouldUpdate = false;
+			window.removeEventListener('pets:changed', handlePetsChanged);
+		};
+	}, []);
 
 	useEffect(() => {
 		if (!searchInput) {
@@ -86,18 +147,37 @@ function PetCardsApp({ initialPets, searchInput }) {
 		const normalizedQuery = searchTerm.trim().toLowerCase();
 
 		if (!normalizedQuery) {
-			return initialPets;
+			return pets;
 		}
 
-		return initialPets.filter((pet) => {
+		return pets.filter((pet) => {
 			const haystack = [pet.name, ...pet.info].join(' ').toLowerCase();
 			return haystack.includes(normalizedQuery);
 		});
-	}, [initialPets, searchTerm]);
+	}, [pets, searchTerm]);
+
+	if (fetchStatus === 'loading') {
+		return <EmptyState title="Carregando pets" description="Buscando os pets cadastrados no servidor." />;
+	}
+
+	if (fetchStatus === 'error') {
+		return <EmptyState title="Servidor indisponivel" description={fetchError} />;
+	}
+
+	if (!pets.length) {
+		return <EmptyState title="Nenhum pet cadastrado" description="Cadastre um usuario e depois o seu primeiro pet para exibi-lo aqui." />;
+	}
 
 	return (
 		<>
-			{filteredPets.length ? filteredPets.map((pet) => <PetCard key={pet.id} pet={pet} />) : <EmptyState />}
+			{filteredPets.length ? (
+				filteredPets.map((pet) => <PetCard key={pet.id} pet={pet} />)
+			) : (
+				<EmptyState
+					title="Nenhum pet encontrado"
+					description="Tente pesquisar por nome, tutor, exame, vacina ou veterinario."
+				/>
+			)}
 		</>
 	);
 }
@@ -106,6 +186,5 @@ const cardsContainer = document.querySelector('.cards');
 const searchInput = document.querySelector('.search__input');
 
 if (cardsContainer) {
-	const initialPets = extractPets();
-	createRoot(cardsContainer).render(<PetCardsApp initialPets={initialPets} searchInput={searchInput} />);
+	createRoot(cardsContainer).render(<PetCardsApp searchInput={searchInput} />);
 }

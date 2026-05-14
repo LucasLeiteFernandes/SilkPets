@@ -11,7 +11,7 @@
 			<div class="shell topbar__inner">
 				<a class="brand" href="#">
 					<span class="brand__text">SilkPets</span>
-					<img class="petIcon" src=".\Imagens\petIcon.png" alt="">
+					<img class="petIcon" src="./Imagens/petIcon.png" alt="">
 				</a>
 
 				<label class="search" aria-label="Pesquisar">
@@ -25,11 +25,11 @@
 				</label>
 
 				<div class="actions">
-					<a class="btn btn--meus" href="#">
+					<button class="btn btn--meus" id="btnMeusPets" type="button">
 						<span class="btn__icons" aria-hidden="true">🐾</span>
-						<span class="btn__label">MEUS PETS</span>
-					</a>
-					<button class="btn btn--login" id="btnLogin">LOGIN</button>
+						<span class="btn__label">CADASTRAR PET</span>
+					</button>
+					<button class="btn btn--login" id="btnLogin" type="button">LOGIN</button>
 					<a class="avatar" href="#" aria-label="Perfil" id="btnPerfil">
 						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 							<path d="M12 12a4.2 4.2 0 1 0-4.2-4.2A4.2 4.2 0 0 0 12 12Z" fill="currentColor" />
@@ -50,62 +50,14 @@
 
 		<main class="page">
 			<div class="shell">
-				<section class="cards" aria-label="Pets">
-					<article class="pet-card" id="consultas">
-						<div class="pet-card__left">
-							<div class="pet-media">
-								<img
-									src="./Imagens/gatosLegais.png"
-									alt="Foto do pet"
-									loading="lazy"
-								/>
-							</div>
-							<h2 class="pet-name">Gatos legais</h2>
-						</div>
+				<section class="page-header" aria-label="Resumo da pagina inicial">
+					<div>
+						<h1 class="page-title">Pets cadastrados</h1>
+						<p class="page-subtitle" id="sessionBadge">Faça login para cadastrar seu usuario e seu pet.</p>
+					</div>
+				</section>
 
-						<div class="pet-card__right">
-							<ul class="pet-info">
-								<li>Idade: 2 anos</li>
-								<li>Exames: pronto para a retirada</li>
-								<li>Veterinário: fulano</li>
-								<li>Vacinas: em dia</li>
-								<li>Descrição: a maior cat band de todos os tempos</li>
-							</ul>
-
-							<div class="pet-actions">
-								<a class="btn btn--ghost" href="../vacinas/vacinas.html">Vacinas</a>
-								<a class="btn btn--ghost" href="#consultas">Consultas</a>
-							</div>
-						</div>
-					</article>
-
-					<article class="pet-card" id="vacinas">
-						<div class="pet-card__left">
-							<div class="pet-media">
-								<img
-									src="./Imagens/gatoJoia.jpg"
-									alt="Foto do pet"
-									loading="lazy"
-								/>
-							</div>
-							<h2 class="pet-name">Gato Joia</h2>
-						</div>
-
-						<div class="pet-card__right">
-							<ul class="pet-info">
-								<li>Idade: 459 anos</li>
-								<li>Exames: Atrasados</li>
-								<li>Veterinário: fulano de tal</li>
-								<li>Vacinas: atrasadas</li>
-								<li>Descrição: o primeiro de todos</li>
-							</ul>
-                            
-                            <div class="pet-actions">
-								<a class="btn btn--ghost" href="../vacinas/vacinas.html">Vacinas</a>
-								<a class="btn btn--ghost" href="#consultas">Consultas</a>
-							</div>
-						</div>
-					</article>
+				<section class="cards" aria-label="Pets cadastrados">
 				</section>
 			</div>
 		</main>
@@ -116,6 +68,7 @@
 				<button class="modal__close" id="closeLogin">&times;</button>
 				<h2 class="modal__title">Login</h2>
 				<form class="modal__form" id="formLogin">
+					<p class="form__message" id="loginMessage" aria-live="polite"></p>
 					<div class="form__group">
 						<label for="loginEmail">Email:</label>
 						<input type="email" id="loginEmail" name="email" required placeholder="seu@email.com" />
@@ -139,6 +92,7 @@
 				<button class="modal__close" id="closeCadastro">&times;</button>
 				<h2 class="modal__title">Cadastro</h2>
 				<form class="modal__form" id="formCadastro">
+					<p class="form__message" id="cadastroMessage" aria-live="polite"></p>
 					<div class="form__group">
 						<label for="cadastroNome">Nome Completo:</label>
 						<input type="text" id="cadastroNome" name="nome" required placeholder="Seu nome completo" />
@@ -165,6 +119,46 @@
 					Já tem conta? 
 					<button class="link-btn" id="switchToLogin">Faça login aqui</button>
 				</p>
+			</div>
+		</div>
+
+		<div class="modal" id="modalPet">
+			<div class="modal__content modal__content--wide">
+				<button class="modal__close" id="closePet">&times;</button>
+				<h2 class="modal__title">Cadastrar pet</h2>
+				<form class="modal__form" id="formPet">
+					<p class="form__message" id="petMessage" aria-live="polite"></p>
+					<p class="modal__footer modal__footer--left">Usuario conectado: <strong id="petOwnerName">Nenhum usuario conectado</strong></p>
+					<div class="form__group">
+						<label for="petNome">Nome do pet:</label>
+						<input type="text" id="petNome" name="nome" required placeholder="Ex.: Mel" />
+					</div>
+					<div class="form__group">
+						<label for="petIdade">Idade:</label>
+						<input type="text" id="petIdade" name="idade" required placeholder="Ex.: 2 anos" />
+					</div>
+					<div class="form__group">
+						<label for="petExames">Exames:</label>
+						<input type="text" id="petExames" name="exames" placeholder="Ex.: Hemograma em dia" />
+					</div>
+					<div class="form__group">
+						<label for="petVeterinario">Veterinario responsavel:</label>
+						<input type="text" id="petVeterinario" name="veterinario" placeholder="Ex.: Dra. Ana" />
+					</div>
+					<div class="form__group">
+						<label for="petVacinas">Vacinas:</label>
+						<input type="text" id="petVacinas" name="vacinas" placeholder="Ex.: V10 e antirrabica em dia" />
+					</div>
+					<div class="form__group">
+						<label for="petImagem">URL da imagem:</label>
+						<input type="url" id="petImagem" name="imagem" placeholder="https://exemplo.com/meu-pet.jpg" />
+					</div>
+					<div class="form__group">
+						<label for="petDescricao">Descricao:</label>
+						<textarea id="petDescricao" name="descricao" rows="4" placeholder="Conte um pouco sobre seu pet"></textarea>
+					</div>
+					<button type="submit" class="btn btn--primary">Salvar pet</button>
+				</form>
 			</div>
 		</div>
 
