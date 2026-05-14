@@ -4,16 +4,35 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const { request } = require('http');
+var mongodb = require("mongodb");
+var bodyParser = require("body-parser")
 
 dotenv.config();
-
+const MongoClient = mongodb.MongoClient;
 const app = express();
 const PORT = process.env.PORT || 3000;
 const MONGO_URI =
         process.env.MONGO_URI ||
         'mongodb+srv://silkpets:xGk71IwTltD888cs@silkpets.n8jqo2q.mongodb.net/silkpets?retryWrites=true&w=majority&appName=Silkpets';
 const DEFAULT_PET_IMAGE = '/Paginas/Main/Imagens/petIcon.png';
+const client = new MongoClient(MONGO_URI);
 
+app.use(express.static('./public'))
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+app.set('view engine', 'ejs')
+app.set('views', './views');
+var session = require('express-session');
+app.use(session({
+    secret: 'segredo-super-seguro',
+    resave: false,
+    saveUninitialized: true
+}));
+
+var dbo = client.db("Silkpets");
+var usuarios = dbo.collection("usuarios");
+var pets = dbo.collection("pets");
 // Set-ExecutionPolicy -Scope CurrentUser 
 // Unrestricted
 // npm init (se nao tiver o package)
@@ -136,42 +155,58 @@ app.get('/api/health', (_request, response) => {
     response.json({ ok: true });
 });
 
-app.post('/api/users/register', async (request, response) => {
+app.get("/api/user/register", function(request, response) {
+    console.log("MORTE E SOFRIMENTO".red)
+    let nome = request.query.nome;
+    let email = request.query.email;
+    let telefone = request.query.telefone;
+    let password = request.query.password;
+
+    
+    console.log(nome, email, telefone, senha)
+})
+
+app.post("/api/users/register", async (request, response) => {
     try {
         
-        console.log("teste 1 ");
-        console.log(request.body);
         const { nome, email, telefone, password } = request.body;
-        console.log("teste 2");
 
         if (!nome || !email || !password) {
             return response.status(400).json({ message: 'Nome, email e senha sao obrigatorios.' });
         }
-
         if (String(password).length < 6) {
             return response.status(400).json({ message: 'A senha deve ter pelo menos 6 caracteres.' });
         }
-
         const existingUser = await User.findOne({ email: String(email).toLowerCase().trim() });
-
         if (existingUser) {
             return response.status(409).json({ message: 'Ja existe um usuario com este email.' });
         }
-
         const passwordHash = await bcrypt.hash(String(password), 10);
-        const user = await User.create({
-            name: String(nome).trim(),
-            email: String(email).toLowerCase().trim(),
-            phone: telefone ? String(telefone).trim() : '',
-            passwordHash,
-        });
 
-        return response.status(201).json({
-            message: 'Usuario cadastrado com sucesso.',
-            user: normalizeUser(user),
-        });
+        var data = {db_nome: nome, db_email: email, db_phone: telefone, db_password: password}
+
+        usuarios.insertOne(data, function(err, result){
+            if (err){
+                console.log("EXPLOSAO INFINITA".red)
+                console.log(err)
+            } else {
+                message: 'Usuario cadastrado com sucesso.'
+            }
+        })
+        // const user = await User.create({
+        //     name: String(nome).trim(),
+        //     email: String(email).toLowerCase().trim(),
+        //     phone: telefone ? String(telefone).trim() : '',
+        //     passwordHash: String(passwordHash).trim(),
+        // });
+
+        console.log(data)
+        console.log("RESTAURAR REALIDADE".rainbow)
+        // return response.status(201).json({
+        //     ,
+        // });
     } catch (error) {
-        console.log("EXPLODIR COMPUTADOR".rainbow)
+        console.log("APAGAR REALIDADE".red)
         if (error && error.code === 11000) {
             return response.status(409).json({ message: 'Ja existe um usuario com este email.' });
         }
@@ -179,6 +214,15 @@ app.post('/api/users/register', async (request, response) => {
         return response.status(500).json({ message: 'Nao foi possivel cadastrar o usuario.' });
     }
 });
+
+app.get("/api/user/login", function(request, response) {
+    console.log("MORTE E SOFRIMENTO".red)
+    let email = request.query.email;
+    let password = request.query.password;
+
+    
+    console.log(email, password)
+})
 
 app.post('/api/users/login', async (request, response) => {
     try {
