@@ -2,9 +2,9 @@ const { createRoot } = ReactDOM;
 const { useEffect, useMemo, useState } = React;
 
 const DEFAULT_PET_IMAGE = '/Paginas/Main/Imagens/petIcon.png';
-const LOCAL_API_ORIGIN = 'http://localhost:3000';
+//const LOCAL_API_ORIGIN = 'http://localhost:3000';
 
-function resolveApiBaseUrl() {
+function resolveApiBaseUrl2() {
 	const { protocol, hostname, port } = window.location;
 
 	if (protocol === 'file:') {
@@ -20,7 +20,7 @@ function resolveApiBaseUrl() {
 	return '';
 }
 
-const apiBaseUrl = resolveApiBaseUrl();
+const apiBaseUrl2 = resolveApiBaseUrl2();
 
 function createPetActions() {
 	return [
@@ -36,7 +36,6 @@ function normalizePet(pet) {
 		image: pet.imagem || DEFAULT_PET_IMAGE,
 		alt: pet.nome ? `Foto de ${pet.nome}` : 'Foto do pet',
 		info: [
-			`Tutor: ${pet.ownerName || 'Nao informado'}`,
 			`Idade: ${pet.idade || 'Nao informada'}`,
 			`Exames: ${pet.exames || 'Nao informado'}`,
 			`Veterinario: ${pet.veterinario || 'Nao informado'}`,
@@ -96,6 +95,7 @@ function EmptyState({ title, description }) {
 }
 
 function PetCardsApp({ searchInput }) {
+	console.log("PetsCardsApp()")
 	const [pets, setPets] = useState([]);
 	const [fetchStatus, setFetchStatus] = useState('loading');
 	const [fetchError, setFetchError] = useState('');
@@ -106,9 +106,10 @@ function PetCardsApp({ searchInput }) {
 
 		async function loadPets() {
 			setFetchStatus('loading');
-
+			
 			try {
-				const response = await fetch(`${apiBaseUrl}/api/pets`);
+				console.log("teste 1")
+				const response = await fetch(`${apiBaseUrl2}/api/pets`);
 				const contentType = response.headers.get('content-type') || '';
 				const data = contentType.includes('application/json') ? await response.json() : {};
 

@@ -129,6 +129,8 @@ function renderSessionState() {
 	sessionBadge.textContent = isLoggedIn
 		? `${currentUser.nome} conectado(a). Agora voce pode cadastrar um pet e ele aparecera nesta tela.`
 		: 'Faça login para cadastrar seu usuario e seu pet.';
+
+	//console.log(currentUser)
 }
 
 async function requestJson(url, options = {}) {
