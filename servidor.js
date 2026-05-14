@@ -1,36 +1,18 @@
-require("colors");
-var http = require("http");
-var express = require("express");
-var bodyParser = require("body-parser")
-var mongodb = require("mongodb");
+require('colors');
+const path = require('path');
+const express = require('express');
+const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+const MONGO_URI =
+        process.env.MONGO_URI ||
+        'mongodb+srv://silkpets:xGk71IwTltD888cs@silkpets.n8jqo2q.mongodb.net/silkpets?retryWrites=true&w=majority&appName=Silkpets';
 const DEFAULT_PET_IMAGE = '/Paginas/Main/Imagens/petIcon.png';
-
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb+srv://silkpets:xGk71IwTltD888cs@silkpets.n8jqo2q.mongodb.net/?appName=Silkpets";
-
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
-
-async function run() {
-  try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
-  }
-}
-run().catch(console.dir);
 
 // Set-ExecutionPolicy -Scope CurrentUser 
 // Unrestricted
@@ -43,7 +25,7 @@ run().catch(console.dir);
 // npm install express-session
 
 // cria um banco e as 'tabela'
-console.log("Servidor rodando ...".rainbow);
+console.log('Servidor iniciando ...'.rainbow);
 const userSchema = new mongoose.Schema(
     {
         name: {
@@ -283,8 +265,10 @@ app.get('/', (_request, response) => {
 async function startServer() {
     try {
         await mongoose.connect(MONGO_URI);
+        console.log('MongoDB conectado com sucesso.'.green);
+
         app.listen(PORT, () => {
-            console.log(`SilkPets rodando em http://localhost:${PORT}`);
+            console.log(`SilkPets rodando em http://localhost:${PORT}`.rainbow);
         });
     } catch (error) {
         console.error('Falha ao iniciar o servidor:', error.message);
