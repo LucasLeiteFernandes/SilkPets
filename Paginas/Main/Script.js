@@ -160,11 +160,20 @@ async function requestJson(url, options = {}) {
 	return data;
 }
 
-btnLogin.addEventListener('click', () => {
+btnLogin.addEventListener('click', async () => {
 	if (currentUser) {
-		persistUser(null);
-		window.dispatchEvent(new CustomEvent('user:changed', { detail: null }));
-		closeAllModals();
+		try {
+			await requestJson('/api/users/logout', {
+				method: 'POST',
+			});
+
+			persistUser(null);
+			window.dispatchEvent(new CustomEvent('user:changed', { detail: null }));
+			closeAllModals();
+		} catch (error) {
+			sessionBadge.textContent = error.message;
+		}
+
 		return;
 	}
 
