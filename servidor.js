@@ -263,11 +263,13 @@ app.post('/api/users/logout', (request, response) => {
 app.get('/api/pets', async (request, response) => {
     console.log("AAAAAAAAAAAAAAAAAAAAAAAAA".rainbow)
     try {
-        const ownerId = resolveOwnerId(request.session.ownerId || request.query.ownerId);
+        const ownerId = resolveOwnerId(request.query.ownerId || request.session.ownerId);
 
         if (!ownerId) {
             return response.json({ pets: [] });
         }
+
+        response.set('Cache-Control', 'no-store');
 
         const filters = { db_owner: ownerId };
         console.log(ownerId)
@@ -286,7 +288,7 @@ app.get('/api/pets', async (request, response) => {
 app.post('/api/pets', async (request, response) => {
     try {
         const { nome, idade, exames, veterinario, vacinas, descricao, imagem } = request.body;
-        const sessionOwnerId = resolveOwnerId(request.session.ownerId || request.body.ownerId);
+        const sessionOwnerId = resolveOwnerId(request.body.ownerId || request.session.ownerId);
 
         if (!sessionOwnerId) {
             return response.status(401).json({ message: 'Voce precisa estar logado para cadastrar um pet.' });

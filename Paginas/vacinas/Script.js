@@ -216,6 +216,7 @@ function VaccinePanelApp({ searchInput }) {
 
 			try {
 				const response = await fetch(buildPetsRequestUrl(), {
+					cache: 'no-store',
 					credentials: 'include',
 				});
 				const contentType = response.headers.get('content-type') || '';
