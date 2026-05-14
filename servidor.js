@@ -151,6 +151,10 @@ function normalizePet(pet) {
     };
 }
 
+function resolveOwnerId(value) {
+    return String(value || '').trim();
+}
+
 app.get('/api/health', (_request, response) => {
     response.json({ ok: true });
 });
@@ -281,12 +285,14 @@ app.post('/api/users/logout', (request, response) => {
 app.get('/api/pets', async (request, response) => {
     console.log("AAAAAAAAAAAAAAAAAAAAAAAAA".rainbow)
     try {
-        if (!request.session.ownerId) {
+        const ownerId = resolveOwnerId(request.session.ownerId || request.query.ownerId);
+
+        if (!ownerId) {
             return response.json({ pets: [] });
         }
 
-        const filters = { db_owner: request.session.ownerId };
-        console.log(request.session.ownerId)
+        const filters = { db_owner: ownerId };
+        console.log(ownerId)
 
 
         const pet = await pets.find(filters).toArray()//.populate('posts', 'db_owner')//.sort({ createdAt: -1 });
@@ -302,16 +308,21 @@ app.get('/api/pets', async (request, response) => {
 app.post('/api/pets', async (request, response) => {
     try {
         const { nome, idade, exames, veterinario, vacinas, descricao, imagem } = request.body;
-        const sessionOwnerId = request.session.ownerId;
-        const owner = sessionOwnerId ? await usuarios.findOne({ _id: new mongodb.ObjectId(sessionOwnerId) }) : null;
-        console.log("ownerId recebido:", request.body.ownerId);
-        console.log("owner encontrado:", owner);
-        //console.log("collection do User:", usuarios.collection.name)
-        console.log("body recebido:", request.body);
+        const sessionOwnerId = resolveOwnerId(request.session.ownerId || request.body.ownerId);
 
         if (!sessionOwnerId) {
             return response.status(401).json({ message: 'Voce precisa estar logado para cadastrar um pet.' });
         }
+
+        if (!mongodb.ObjectId.isValid(sessionOwnerId)) {
+            return response.status(400).json({ message: 'Usuario responsavel invalido.' });
+        }
+
+        const owner = await usuarios.findOne({ _id: new mongodb.ObjectId(sessionOwnerId) });
+        console.log("ownerId recebido:", request.body.ownerId);
+        console.log("owner encontrado:", owner);
+        //console.log("collection do User:", usuarios.collection.name)
+        console.log("body recebido:", request.body);
 
         if (!nome || !idade) {
             console.log("tutores")
@@ -323,6 +334,9 @@ app.post('/api/pets', async (request, response) => {
             console.log("usario nao encontrado")
             return response.status(404).json({ message: 'Usuario responsavel nao encontrado.' });
         }
+
+        request.session.ownerId = sessionOwnerId;
+        request.session.ownerName = request.session.ownerName || owner.db_nome;
 
         const data = {
             db_owner: sessionOwnerId,

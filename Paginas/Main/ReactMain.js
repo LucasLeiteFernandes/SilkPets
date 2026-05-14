@@ -3,6 +3,7 @@ const { useEffect, useMemo, useState } = React;
 
 const DEFAULT_PET_IMAGE = '/Paginas/Main/Imagens/petIcon.png';
 const LOCAL_API_ORIGIN = 'http://localhost:3000';
+const STORAGE_USER_KEY = 'silkpets:user';
 
 function resolveApiBaseUrl2() {
 	const { protocol, hostname, port } = window.location;
@@ -21,6 +22,23 @@ function resolveApiBaseUrl2() {
 }
 
 const apiBaseUrl2 = resolveApiBaseUrl2();
+
+function readStoredUser() {
+	try {
+		const storedUser = localStorage.getItem(STORAGE_USER_KEY);
+		return storedUser ? JSON.parse(storedUser) : null;
+	} catch (_error) {
+		localStorage.removeItem(STORAGE_USER_KEY);
+		return null;
+	}
+}
+
+function buildPetsRequestUrl() {
+	const currentUser = readStoredUser();
+	const ownerId = currentUser?.id ? encodeURIComponent(currentUser.id) : '';
+
+	return ownerId ? `${apiBaseUrl2}/api/pets?ownerId=${ownerId}` : `${apiBaseUrl2}/api/pets`;
+}
 
 function createPetActions(pet) {
 	return [
@@ -109,7 +127,7 @@ function PetCardsApp({ searchInput }) {
 			
 			try {
 				console.log("teste 1")
-				const response = await fetch(`${apiBaseUrl2}/api/pets`, {
+				const response = await fetch(buildPetsRequestUrl(), {
 					credentials: 'include',
 				});
 				const contentType = response.headers.get('content-type') || '';
