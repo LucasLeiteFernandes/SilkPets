@@ -139,6 +139,7 @@ async function requestJson(url, options = {}) {
 	try {
 		response = await fetch(`${apiBaseUrl}${url}`, {
 			method: options.method || 'GET',
+			credentials: 'include',
 			headers: {
 				'Content-Type': 'application/json',
 				...(options.headers || {}),
@@ -162,6 +163,7 @@ async function requestJson(url, options = {}) {
 btnLogin.addEventListener('click', () => {
 	if (currentUser) {
 		persistUser(null);
+		window.dispatchEvent(new CustomEvent('user:changed', { detail: null }));
 		closeAllModals();
 		return;
 	}
