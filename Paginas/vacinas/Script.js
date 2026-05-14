@@ -3,6 +3,7 @@ const { useEffect, useMemo, useState } = React;
 
 const DEFAULT_PET_IMAGE = '/Paginas/Main/Imagens/petIcon.png';
 const LOCAL_API_ORIGIN = 'http://localhost:3000';
+const STORAGE_USER_KEY = 'silkpets:user';
 
 function resolveApiBaseUrl() {
 	const { protocol, hostname, port } = window.location;
@@ -21,6 +22,23 @@ function resolveApiBaseUrl() {
 }
 
 const apiBaseUrl = resolveApiBaseUrl();
+
+function readStoredUser() {
+	try {
+		const storedUser = localStorage.getItem(STORAGE_USER_KEY);
+		return storedUser ? JSON.parse(storedUser) : null;
+	} catch (_error) {
+		localStorage.removeItem(STORAGE_USER_KEY);
+		return null;
+	}
+}
+
+function buildPetsRequestUrl() {
+	const currentUser = readStoredUser();
+	const ownerId = currentUser?.id ? encodeURIComponent(currentUser.id) : '';
+
+	return ownerId ? `${apiBaseUrl}/api/pets?ownerId=${ownerId}` : `${apiBaseUrl}/api/pets`;
+}
 
 function getSelectedPetIdFromLocation() {
 	const params = new URLSearchParams(window.location.search);
@@ -197,7 +215,7 @@ function VaccinePanelApp({ searchInput }) {
 			setFetchStatus('loading');
 
 			try {
-				const response = await fetch(`${apiBaseUrl}/api/pets`, {
+				const response = await fetch(buildPetsRequestUrl(), {
 					credentials: 'include',
 				});
 				const contentType = response.headers.get('content-type') || '';
