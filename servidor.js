@@ -3,17 +3,19 @@ const path = require('path');
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
+const { request } = require('http');
 var mongodb = require("mongodb");
 var bodyParser = require("body-parser")
 
 dotenv.config();
-
+const MongoClient = mongodb.MongoClient;
 const app = express();
 const PORT = process.env.PORT || 3000;
 const MONGO_URI =
         process.env.MONGO_URI ||
         'mongodb+srv://silkpets:xGk71IwTltD888cs@silkpets.n8jqo2q.mongodb.net/silkpets?retryWrites=true&w=majority&appName=Silkpets';
 const DEFAULT_PET_IMAGE = '/Paginas/Main/Imagens/petIcon.png';
+const client = new MongoClient(MONGO_URI);
 
 app.use(express.static('./public'))
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -22,7 +24,7 @@ app.set('view engine', 'ejs')
 app.set('views', './views');
 var session = require('express-session');
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'segredo-super-seguro',
+    secret: 'segredo-super-seguro',
     resave: false,
     saveUninitialized: true
 }));
@@ -82,56 +84,50 @@ app.get("/api/user/register", function(request, response) {
     let password = request.query.password;
 
     
-    console.log(nome, email, telefone, password)
+    console.log(nome, email, telefone, senha)
 })
 
 app.post("/api/users/register", async (request, response) => {
     try {
+        
         const { nome, email, telefone, password } = request.body;
-        const normalizedEmail = String(email || '').toLowerCase().trim();
 
         if (!nome || !email || !password) {
             return response.status(400).json({ message: 'Nome, email e senha sao obrigatorios.' });
         }
-
         if (String(password).length < 6) {
             return response.status(400).json({ message: 'A senha deve ter pelo menos 6 caracteres.' });
         }
-        const existingUser = await usuarios.findOne({ db_email: normalizedEmail });
+        const existingUser = await User.findOne({ email: String(email).toLowerCase().trim() });
         if (existingUser) {
             return response.status(409).json({ message: 'Ja existe um usuario com este email.' });
         }
-
         const passwordHash = await bcrypt.hash(String(password), 10);
-        const user = await User.create({
-            name: String(nome).trim(),
-            email: String(email).toLowerCase().trim(),
-            phone: telefone ? String(telefone).trim() : '',
-            passwordHash,
-        });
 
-        const data = {
-            db_nome: String(nome).trim(),
-            db_email: normalizedEmail,
-            db_phone: String(telefone || '').trim(),
-            db_password: passwordHash,
-        };
+        var data = {db_nome: nome, db_email: email, db_phone: telefone, db_password: password}
 
-        const result = await usuarios.insertOne(data);
-        const savedUser = {
-            _id: result.insertedId,
-            ...data,
-        };
+        usuarios.insertOne(data, function(err, result){
+            if (err){
+                console.log("EXPLOSAO INFINITA".red)
+                console.log(err)
+            } else {
+                message: 'Usuario cadastrado com sucesso.'
+            }
+        })
+        // const user = await User.create({
+        //     name: String(nome).trim(),
+        //     email: String(email).toLowerCase().trim(),
+        //     phone: telefone ? String(telefone).trim() : '',
+        //     passwordHash: String(passwordHash).trim(),
+        // });
 
-        request.session.ownerId = String(savedUser._id);
-        request.session.ownerName = savedUser.db_nome;
-
-        return response.status(201).json({
-            message: 'Usuario cadastrado com sucesso.',
-            user: normalizeUser(savedUser),
-        });
+        console.log(data)
+        console.log("RESTAURAR REALIDADE".rainbow)
+        // return response.status(201).json({
+        //     ,
+        // });
     } catch (error) {
-        console.log("EXPLODIR COMPUTADOR".rainbow)
+        console.log("APAGAR REALIDADE".red)
         if (error && error.code === 11000) {
             return response.status(409).json({ message: 'Ja existe um usuario com este email.' });
         }
@@ -144,7 +140,8 @@ app.get("/api/user/login", function(request, response) {
     console.log("MORTE E SOFRIMENTO".red)
     let email = request.query.email;
     let password = request.query.password;
-  
+
+    
     console.log(email, password)
 })
 
