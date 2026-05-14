@@ -328,7 +328,7 @@ formPet.addEventListener('submit', async (event) => {
 
 	try {
 		setMessage(petMessage, 'Salvando pet...');
-		await requestJson('/api/pets', {
+		const result = await requestJson('/api/pets', {
 			method: 'POST',
 			body: {
 				ownerId: currentUser.id,
@@ -344,7 +344,7 @@ formPet.addEventListener('submit', async (event) => {
 
 		formPet.reset();
 		closeAllModals();
-		window.dispatchEvent(new CustomEvent('pets:changed'));
+		window.dispatchEvent(new CustomEvent('pets:changed', { detail: { newPet: result.pet } }));
 	} catch (error) {
 		setMessage(petMessage, error.message, 'error');
 	}
