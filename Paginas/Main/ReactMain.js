@@ -126,13 +126,16 @@ function PetCardsApp({ searchInput }) {
 			setFetchStatus('loading');
 			
 			try {
-				console.log("teste 1")
-				const response = await fetch(buildPetsRequestUrl(), {
+				const url = buildPetsRequestUrl();
+				console.log('[SilkPets] loadPets ->', url);
+				const response = await fetch(url, {
 					cache: 'no-store',
 					credentials: 'include',
 				});
 				const contentType = response.headers.get('content-type') || '';
 				const data = contentType.includes('application/json') ? await response.json() : {};
+
+				console.log('[SilkPets] loadPets response:', response.status, data);
 
 				if (!response.ok) {
 					throw new Error(data.message || 'Nao foi possivel carregar os pets.');
@@ -146,6 +149,7 @@ function PetCardsApp({ searchInput }) {
 				setFetchError('');
 				setFetchStatus('ready');
 			} catch (error) {
+				console.error('[SilkPets] loadPets error:', error);
 				if (!shouldUpdate) {
 					return;
 				}
@@ -155,8 +159,16 @@ function PetCardsApp({ searchInput }) {
 			}
 		}
 
-		function handlePetsChanged() {
-			loadPets();
+		function handlePetsChanged(event) {
+			const newPet = event.detail?.newPet;
+			if (newPet) {
+				console.log('[SilkPets] pet added via event:', newPet);
+				setPets(prev => [...prev, normalizePet(newPet)]);
+				setFetchError('');
+				setFetchStatus('ready');
+			} else {
+				loadPets();
+			}
 		}
 
 		function handleUserChanged() {
