@@ -2,7 +2,7 @@ const { createRoot } = ReactDOM;
 const { useEffect, useMemo, useState } = React;
 
 const DEFAULT_PET_IMAGE = '/Paginas/Main/Imagens/petIcon.png';
-//const LOCAL_API_ORIGIN = 'http://localhost:3000';
+const LOCAL_API_ORIGIN = 'http://localhost:3000';
 
 function resolveApiBaseUrl2() {
 	const { protocol, hostname, port } = window.location;
@@ -22,9 +22,9 @@ function resolveApiBaseUrl2() {
 
 const apiBaseUrl2 = resolveApiBaseUrl2();
 
-function createPetActions() {
+function createPetActions(pet) {
 	return [
-		{ label: 'Vacinas', href: '../vacinas/vacinas.html' },
+		{ label: 'Vacinas', href: `../vacinas/vacinas.html?pet=${encodeURIComponent(pet.id)}` },
 		{ label: 'Consultas', href: '../consultas/consultas.html' },
 	];
 }
@@ -42,7 +42,7 @@ function normalizePet(pet) {
 			`Vacinas: ${pet.vacinas || 'Nao informado'}`,
 			`Descricao: ${pet.descricao || 'Sem descricao cadastrada.'}`,
 		],
-		actions: createPetActions(),
+		actions: createPetActions(pet),
 	};
 }
 

@@ -262,6 +262,22 @@ app.post('/api/users/login', async (request, response) => {
     }
 });
 
+app.post('/api/users/logout', (request, response) => {
+    if (!request.session) {
+        return response.json({ message: 'Logout realizado com sucesso.' });
+    }
+
+    return request.session.destroy((error) => {
+        if (error) {
+            console.error(error);
+            return response.status(500).json({ message: 'Nao foi possivel encerrar a sessao.' });
+        }
+
+        response.clearCookie('connect.sid');
+        return response.json({ message: 'Logout realizado com sucesso.' });
+    });
+});
+
 app.get('/api/pets', async (request, response) => {
     console.log("AAAAAAAAAAAAAAAAAAAAAAAAA".rainbow)
     try {
