@@ -25,8 +25,27 @@ const sessionBadge = document.getElementById('sessionBadge');
 const petOwnerName = document.getElementById('petOwnerName');
 
 const STORAGE_USER_KEY = 'silkpets:user';
+const LOCAL_API_ORIGIN = 'http://localhost:3000';
 
 let currentUser = readStoredUser();
+
+function resolveApiBaseUrl() {
+	const { protocol, hostname, port } = window.location;
+
+	if (protocol === 'file:') {
+		return LOCAL_API_ORIGIN;
+	}
+
+	const isLocalHost = hostname === 'localhost' || hostname === '127.0.0.1';
+
+	if (isLocalHost && port && port !== '3000') {
+		return LOCAL_API_ORIGIN;
+	}
+
+	return '';
+}
+
+const apiBaseUrl = resolveApiBaseUrl();
 
 function readStoredUser() {
 	try {
@@ -116,7 +135,7 @@ async function requestJson(url, options = {}) {
 	let response;
 
 	try {
-		response = await fetch(url, {
+		response = await fetch(`${apiBaseUrl}${url}`, {
 			method: options.method || 'GET',
 			headers: {
 				'Content-Type': 'application/json',
@@ -125,7 +144,7 @@ async function requestJson(url, options = {}) {
 			body: options.body ? JSON.stringify(options.body) : undefined,
 		});
 	} catch (_error) {
-		throw new Error('Nao foi possivel conectar ao servidor. Inicie o backend do SilkPets.');
+		throw new Error('Nao foi possivel conectar ao servidor. Inicie o backend do SilkPets em http://localhost:3000.');
 	}
 
 	const contentType = response.headers.get('content-type') || '';

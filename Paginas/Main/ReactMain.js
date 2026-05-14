@@ -2,6 +2,25 @@ const { createRoot } = ReactDOM;
 const { useEffect, useMemo, useState } = React;
 
 const DEFAULT_PET_IMAGE = '/Paginas/Main/Imagens/petIcon.png';
+const LOCAL_API_ORIGIN = 'http://localhost:3000';
+
+function resolveApiBaseUrl() {
+	const { protocol, hostname, port } = window.location;
+
+	if (protocol === 'file:') {
+		return LOCAL_API_ORIGIN;
+	}
+
+	const isLocalHost = hostname === 'localhost' || hostname === '127.0.0.1';
+
+	if (isLocalHost && port && port !== '3000') {
+		return LOCAL_API_ORIGIN;
+	}
+
+	return '';
+}
+
+const apiBaseUrl = resolveApiBaseUrl();
 
 function createPetActions() {
 	return [
@@ -89,7 +108,7 @@ function PetCardsApp({ searchInput }) {
 			setFetchStatus('loading');
 
 			try {
-				const response = await fetch('/api/pets');
+				const response = await fetch(`${apiBaseUrl}/api/pets`);
 				const contentType = response.headers.get('content-type') || '';
 				const data = contentType.includes('application/json') ? await response.json() : {};
 
