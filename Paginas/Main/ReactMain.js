@@ -128,6 +128,7 @@ function PetCardsApp({ searchInput }) {
 			try {
 				console.log("teste 1")
 				const response = await fetch(buildPetsRequestUrl(), {
+					cache: 'no-store',
 					credentials: 'include',
 				});
 				const contentType = response.headers.get('content-type') || '';
