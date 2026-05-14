@@ -11,9 +11,36 @@ const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/silkpets';
 const DEFAULT_PET_IMAGE = '/Paginas/Main/Imagens/petIcon.png';
 
+const { MongoClient, ServerApiVersion } = require('mongodb');
+const uri = "mongodb+srv://silkpets:xGk71IwTltD888cs@silkpets.n8jqo2q.mongodb.net/?appName=Silkpets";
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+	version: ServerApiVersion.v1,
+	strict: true,
+	deprecationErrors: true,
+  }
+});
+
+async function run() {
+  try {
+	// Connect the client to the server	(optional starting in v4.7)
+	await client.connect();
+	// Send a ping to confirm a successful connection
+	await client.db("admin").command({ ping: 1 });
+	console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  } finally {
+	// Ensures that the client will close when you finish/error
+	await client.close();
+  }
+}
+run().catch(console.dir);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+console.log("Servidor rodando ...".rainbow);
 const userSchema = new mongoose.Schema(
 	{
 		name: {
