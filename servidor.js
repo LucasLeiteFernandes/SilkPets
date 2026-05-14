@@ -138,7 +138,11 @@ app.get('/api/health', (_request, response) => {
 
 app.post('/api/users/register', async (request, response) => {
     try {
+        
+        console.log("teste 1 ");
+        console.log(request.body);
         const { nome, email, telefone, password } = request.body;
+        console.log("teste 2");
 
         if (!nome || !email || !password) {
             return response.status(400).json({ message: 'Nome, email e senha sao obrigatorios.' });
@@ -167,6 +171,7 @@ app.post('/api/users/register', async (request, response) => {
             user: normalizeUser(user),
         });
     } catch (error) {
+        console.log("EXPLODIR COMPUTADOR".rainbow)
         if (error && error.code === 11000) {
             return response.status(409).json({ message: 'Ja existe um usuario com este email.' });
         }
