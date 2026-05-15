@@ -2,9 +2,7 @@ require('colors');
 const path = require('path');
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const { request } = require('http');
 var mongodb = require("mongodb");
 var bodyParser = require("body-parser")
 
@@ -43,89 +41,7 @@ var pets = dbo.collection("pets");
 // npm update express
 // npm install express-session
 
-// cria um banco e as 'tabela'
 console.log('Servidor iniciando ...'.rainbow);
-const userSchema = new mongoose.Schema(
-    {
-        name: {
-            type: String,
-            required: true,
-            trim: true,
-        },
-        email: {
-            type: String,
-            required: true,
-            unique: true,
-            trim: true,
-            lowercase: true,
-        },
-        phone: {
-            type: String,
-            trim: true,
-            default: '',
-        },
-        passwordHash: {
-            type: String,
-            required: true,
-        },
-    },
-    {
-        versionKey: false,
-        timestamps: true,
-    }
-);
-
-const petSchema = new mongoose.Schema(
-    {
-        owner: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            required: true,
-        },
-        name: {
-            type: String,
-            required: true,
-            trim: true,
-        },
-        age: {
-            type: String,
-            required: true,
-            trim: true,
-        },
-        examsStatus: {
-            type: String,
-            trim: true,
-            default: 'Nao informado',
-        },
-        veterinarian: {
-            type: String,
-            trim: true,
-            default: 'Nao informado',
-        },
-        vaccinesStatus: {
-            type: String,
-            trim: true,
-            default: 'Nao informado',
-        },
-        description: {
-            type: String,
-            trim: true,
-            default: 'Sem descricao cadastrada.',
-        },
-        imageUrl: {
-            type: String,
-            trim: true,
-            default: DEFAULT_PET_IMAGE,
-        },
-    },
-    {
-        versionKey: false,
-        timestamps: true,
-    }
-);
-
-const User = mongoose.model('usuarios', userSchema);
-const Pet = mongoose.model('pets', petSchema);
 
 function normalizeUser(user) {
     return {
@@ -375,14 +291,15 @@ app.get('/', (_request, response) => {
 
 async function startServer() {
     try {
-        await mongoose.connect(MONGO_URI);
-        console.log('MongoDB conectado com sucesso.'.green);
+        await client.connect();
+        console.log('MongoClient conectado com sucesso.'.green);
 
         app.listen(PORT, () => {
             console.log(`SilkPets rodando em http://localhost:${PORT}`.rainbow);
         });
     } catch (error) {
-        console.error('Falha ao iniciar o servidor:', error.message);
+        console.error('Falha ao conectar ao MongoDB:', error.message);
+        console.error('Verifique se o IP desta maquina esta liberado no MongoDB Atlas (Network Access).'.yellow);
         process.exit(1);
     }
 }
