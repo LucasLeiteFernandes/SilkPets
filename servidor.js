@@ -219,7 +219,7 @@ app.get('/api/pets', async (request, response) => {
 
         response.set('Cache-Control', 'no-store');
 
-        const filters = { db_owner: ownerId };
+        //const filters = { db_owner: ownerId };
         console.log(ownerId)
 
 
