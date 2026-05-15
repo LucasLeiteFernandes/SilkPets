@@ -258,7 +258,7 @@ app.post('/api/pets', async (request, response) => {
         }
 
         // Depois buscar o owner
-        const owner = await usuarios.findOne({ _id: new mongodb.ObjectId(sessionOwnerId) });
+        //const owner = await usuarios.findOne({ _id: new mongodb.ObjectId(sessionOwnerId) });
         if (!owner) {
             return response.status(404).json({ message: 'Usuario responsavel nao encontrado.' });
         }
