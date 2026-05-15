@@ -3,7 +3,6 @@ const path = require('path');
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
-const { request } = require('http');
 var mongodb = require("mongodb");
 var bodyParser = require("body-parser")
 
@@ -24,7 +23,7 @@ app.set('view engine', 'ejs')
 app.set('views', './views');
 var session = require('express-session');
 app.use(session({
-    secret: 'segredo-super-seguro',
+    secret: process.env.SESSION_SECRET || 'segredo-super-seguro',
     resave: false,
     saveUninitialized: true
 }));
@@ -47,29 +46,25 @@ console.log('Servidor iniciando ...'.rainbow);
 function normalizeUser(user) {
     return {
         id: String(user._id),
-        nome: user.db_nome || user.db_name || user.name || '',
-        email: user.db_email || user.email || '',
-        telefone: user.db_phone || user.phone || '',
+        nome: user.name,
+        email: user.email,
+        telefone: user.phone || '',
     };
 }
 
 function normalizePet(pet) {
     return {
         id: String(pet._id),
-        ownerId: pet.db_owner,
-        ownerName: pet.db_ownerName,
-        nome: pet.db_name,
-        idade: pet.db_idade,
-        exames: pet.db_exames,
-        veterinario: pet.db_veterinario,
-        vacinas: pet.db_vacinas,
-        descricao: pet.db_descricao,
-        imagem: pet.db_imagem || DEFAULT_PET_IMAGE,
+        ownerId: typeof pet.owner === 'object' && pet.owner ? String(pet.owner._id || pet.owner) : String(pet.owner),
+        ownerName: typeof pet.owner === 'object' && pet.owner ? pet.owner.name || '' : '',
+        nome: pet.name,
+        idade: pet.age,
+        exames: pet.examsStatus,
+        veterinario: pet.veterinarian,
+        vacinas: pet.vaccinesStatus,
+        descricao: pet.description,
+        imagem: pet.imageUrl || DEFAULT_PET_IMAGE,
     };
-}
-
-function resolveOwnerId(value) {
-    return String(value || '').trim();
 }
 
 app.get('/api/health', (_request, response) => {
@@ -84,7 +79,7 @@ app.get("/api/user/register", function(request, response) {
     let password = request.query.password;
 
     
-    console.log(nome, email, telefone, senha)
+    console.log(nome, email, telefone, password)
 })
 
 app.post("/api/users/register", async (request, response) => {
@@ -148,40 +143,28 @@ app.get("/api/user/login", function(request, response) {
 app.post('/api/users/login', async (request, response) => {
     try {
         const { email, password } = request.body;
-        const normalizedEmail = String(email || '').toLowerCase().trim();
-        
+
         if (!email || !password) {
             return response.status(400).json({ message: 'Email e senha sao obrigatorios.' });
         }
 
-        const owner = await usuarios.findOne({ db_email: normalizedEmail });
-        if (!owner) {
+        const user = await User.findOne({ email: String(email).toLowerCase().trim() });
+
+        if (!user) {
             return response.status(401).json({ message: 'Credenciais invalidas.' });
         }
 
-        const storedPassword = owner.db_password || owner.passwordHash || '';
-        const passwordMatches = storedPassword.startsWith('$2')
-            ? await bcrypt.compare(String(password), storedPassword)
-            : storedPassword === String(password);
+        const passwordMatches = await bcrypt.compare(String(password), user.passwordHash);
 
         if (!passwordMatches) {
             return response.status(401).json({ message: 'Credenciais invalidas.' });
         }
 
-        console.log("logado:", owner);
-
-        request.session.ownerId = String(owner._id);
-        request.session.ownerName = owner.db_nome;
-        console.log("request: " + request.session.ownerId)
-        console.log("   ._id: " + owner._id)
         return response.json({
             message: 'Login realizado com sucesso.',
-            user: normalizeUser(owner),
+            user: normalizeUser(user),
         });
-        
-
     } catch (_error) {
-        console.error(_error);
         return response.status(500).json({ message: 'Nao foi possivel realizar o login.' });
     }
 });
@@ -220,12 +203,10 @@ app.get('/api/pets', async (request, response) => {
         console.log(ownerId)
 
 
-        const pet = await pets.find(filters).toArray()//.populate('posts', 'db_owner')//.sort({ createdAt: -1 });
-        console.log(pet)
-        console.log(pet.map(p => normalizePet(p)))
-        return response.json({ pets: pet.map(p => normalizePet(p)) });
+        const pets = await Pet.find(filters).populate('owner', 'name').sort({ createdAt: -1 });
+
+        return response.json({ pets: pets.map(normalizePet) });
     } catch (_error) {
-        console.log(_error)
         return response.status(500).json({ message: 'Nao foi possivel listar os pets.' });
     }
 });
@@ -260,32 +241,24 @@ app.post('/api/pets', async (request, response) => {
             return response.status(404).json({ message: 'Usuario responsavel nao encontrado.' });
         }
 
-        request.session.ownerId = sessionOwnerId;
-        request.session.ownerName = request.session.ownerName || owner.db_nome;
+        const pet = await Pet.create({
+            owner: owner._id,
+            name: String(nome).trim(),
+            age: String(idade).trim(),
+            examsStatus: exames ? String(exames).trim() : 'Nao informado',
+            veterinarian: veterinario ? String(veterinario).trim() : 'Nao informado',
+            vaccinesStatus: vacinas ? String(vacinas).trim() : 'Nao informado',
+            description: descricao ? String(descricao).trim() : 'Sem descricao cadastrada.',
+            imageUrl: imagem ? String(imagem).trim() : DEFAULT_PET_IMAGE,
+        });
 
-        const data = {
-            db_owner: sessionOwnerId,
-            db_ownerName: request.session.ownerName || owner.db_nome,
-            db_name: String(nome).trim(),
-            db_idade: String(idade).trim(),
-            db_exames: String(exames || '').trim() || 'Nao informado',
-            db_veterinario: String(veterinario || '').trim() || 'Nao informado',
-            db_vacinas: String(vacinas || '').trim() || 'Nao informado',
-            db_descricao: String(descricao || '').trim() || 'Sem descricao cadastrada.',
-            db_imagem: String(imagem || '').trim() || DEFAULT_PET_IMAGE,
-        };
-        const result = await pets.insertOne(data);
-        const savedPet = {
-            _id: result.insertedId,
-            ...data,
-        };
+        const savedPet = await Pet.findById(pet._id).populate('owner', 'name');
 
         return response.status(201).json({
             message: 'Pet cadastrado com sucesso.',
             pet: normalizePet(savedPet),
         });
     } catch (_error) {
-        console.log(_error)
         return response.status(500).json({ message: 'Nao foi possivel cadastrar o pet.' });
     }
 });
