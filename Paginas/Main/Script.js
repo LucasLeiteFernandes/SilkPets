@@ -139,7 +139,6 @@ async function requestJson(url, options = {}) {
 	try {
 		response = await fetch(`${apiBaseUrl}${url}`, {
 			method: options.method || 'GET',
-			credentials: 'include',
 			headers: {
 				'Content-Type': 'application/json',
 				...(options.headers || {}),
@@ -160,20 +159,10 @@ async function requestJson(url, options = {}) {
 	return data;
 }
 
-btnLogin.addEventListener('click', async () => {
+btnLogin.addEventListener('click', () => {
 	if (currentUser) {
-		try {
-			await requestJson('/api/users/logout', {
-				method: 'POST',
-			});
-
-			persistUser(null);
-			window.dispatchEvent(new CustomEvent('user:changed', { detail: null }));
-			closeAllModals();
-		} catch (error) {
-			sessionBadge.textContent = error.message;
-		}
-
+		persistUser(null);
+		closeAllModals();
 		return;
 	}
 
@@ -328,7 +317,7 @@ formPet.addEventListener('submit', async (event) => {
 
 	try {
 		setMessage(petMessage, 'Salvando pet...');
-		const result = await requestJson('/api/pets', {
+		await requestJson('/api/pets', {
 			method: 'POST',
 			body: {
 				ownerId: currentUser.id,
@@ -344,7 +333,7 @@ formPet.addEventListener('submit', async (event) => {
 
 		formPet.reset();
 		closeAllModals();
-		window.dispatchEvent(new CustomEvent('pets:changed', { detail: { newPet: result.pet } }));
+		window.dispatchEvent(new CustomEvent('pets:changed'));
 	} catch (error) {
 		setMessage(petMessage, error.message, 'error');
 	}

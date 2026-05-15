@@ -2,8 +2,7 @@ const { createRoot } = ReactDOM;
 const { useEffect, useMemo, useState } = React;
 
 const DEFAULT_PET_IMAGE = '/Paginas/Main/Imagens/petIcon.png';
-const LOCAL_API_ORIGIN = 'http://localhost:3000';
-const STORAGE_USER_KEY = 'silkpets:user';
+//const LOCAL_API_ORIGIN = 'http://localhost:3000';
 
 function resolveApiBaseUrl2() {
 	const { protocol, hostname, port } = window.location;
@@ -23,26 +22,9 @@ function resolveApiBaseUrl2() {
 
 const apiBaseUrl2 = resolveApiBaseUrl2();
 
-function readStoredUser() {
-	try {
-		const storedUser = localStorage.getItem(STORAGE_USER_KEY);
-		return storedUser ? JSON.parse(storedUser) : null;
-	} catch (_error) {
-		localStorage.removeItem(STORAGE_USER_KEY);
-		return null;
-	}
-}
-
-function buildPetsRequestUrl() {
-	const currentUser = readStoredUser();
-	const ownerId = currentUser?.id ? encodeURIComponent(currentUser.id) : '';
-
-	return ownerId ? `${apiBaseUrl2}/api/pets?ownerId=${ownerId}` : `${apiBaseUrl2}/api/pets`;
-}
-
-function createPetActions(pet) {
+function createPetActions() {
 	return [
-		{ label: 'Vacinas', href: `../vacinas/vacinas.html?pet=${encodeURIComponent(pet.id)}` },
+		{ label: 'Vacinas', href: '../vacinas/vacinas.html' },
 		{ label: 'Consultas', href: '../consultas/consultas.html' },
 	];
 }
@@ -60,7 +42,7 @@ function normalizePet(pet) {
 			`Vacinas: ${pet.vacinas || 'Nao informado'}`,
 			`Descricao: ${pet.descricao || 'Sem descricao cadastrada.'}`,
 		],
-		actions: createPetActions(pet),
+		actions: createPetActions(),
 	};
 }
 
@@ -126,16 +108,10 @@ function PetCardsApp({ searchInput }) {
 			setFetchStatus('loading');
 			
 			try {
-				const url = buildPetsRequestUrl();
-				console.log('[SilkPets] loadPets ->', url);
-				const response = await fetch(url, {
-					cache: 'no-store',
-					credentials: 'include',
-				});
+				console.log("teste 1")
+				const response = await fetch(`${apiBaseUrl2}/api/pets`);
 				const contentType = response.headers.get('content-type') || '';
 				const data = contentType.includes('application/json') ? await response.json() : {};
-
-				console.log('[SilkPets] loadPets response:', response.status, data);
 
 				if (!response.ok) {
 					throw new Error(data.message || 'Nao foi possivel carregar os pets.');
@@ -149,7 +125,6 @@ function PetCardsApp({ searchInput }) {
 				setFetchError('');
 				setFetchStatus('ready');
 			} catch (error) {
-				console.error('[SilkPets] loadPets error:', error);
 				if (!shouldUpdate) {
 					return;
 				}
@@ -159,30 +134,16 @@ function PetCardsApp({ searchInput }) {
 			}
 		}
 
-		function handlePetsChanged(event) {
-			const newPet = event.detail?.newPet;
-			if (newPet) {
-				console.log('[SilkPets] pet added via event:', newPet);
-				setPets(prev => [...prev, normalizePet(newPet)]);
-				setFetchError('');
-				setFetchStatus('ready');
-			} else {
-				loadPets();
-			}
-		}
-
-		function handleUserChanged() {
+		function handlePetsChanged() {
 			loadPets();
 		}
 
 		loadPets();
 		window.addEventListener('pets:changed', handlePetsChanged);
-		window.addEventListener('user:changed', handleUserChanged);
 
 		return () => {
 			shouldUpdate = false;
 			window.removeEventListener('pets:changed', handlePetsChanged);
-			window.removeEventListener('user:changed', handleUserChanged);
 		};
 	}, []);
 
@@ -224,7 +185,7 @@ function PetCardsApp({ searchInput }) {
 	}
 
 	if (!pets.length) {
-		return <EmptyState title="Nenhum pet cadastrado" description="Faca login e cadastre um pet para exibir apenas os animais do usuario conectado." />;
+		return <EmptyState title="Nenhum pet cadastrado" description="Cadastre um usuario e depois o seu primeiro pet para exibi-lo aqui." />;
 	}
 
 	return (
