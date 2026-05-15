@@ -2,8 +2,9 @@ require('colors');
 const path = require('path');
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+var mongodb = require("mongodb");
+var bodyParser = require("body-parser")
 
 dotenv.config();
 
@@ -14,6 +15,21 @@ const MONGO_URI =
         'mongodb+srv://silkpets:xGk71IwTltD888cs@silkpets.n8jqo2q.mongodb.net/silkpets?retryWrites=true&w=majority&appName=Silkpets';
 const DEFAULT_PET_IMAGE = '/Paginas/Main/Imagens/petIcon.png';
 
+app.use(express.static('./public'))
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+app.set('view engine', 'ejs')
+app.set('views', './views');
+var session = require('express-session');
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'segredo-super-seguro',
+    resave: false,
+    saveUninitialized: true
+}));
+
+var dbo = client.db("Silkpets");
+var usuarios = dbo.collection("usuarios");
+var pets = dbo.collection("pets");
 // Set-ExecutionPolicy -Scope CurrentUser 
 // Unrestricted
 // npm init (se nao tiver o package)
@@ -24,89 +40,7 @@ const DEFAULT_PET_IMAGE = '/Paginas/Main/Imagens/petIcon.png';
 // npm update express
 // npm install express-session
 
-// cria um banco e as 'tabela'
 console.log('Servidor iniciando ...'.rainbow);
-const userSchema = new mongoose.Schema(
-    {
-        name: {
-            type: String,
-            required: true,
-            trim: true,
-        },
-        email: {
-            type: String,
-            required: true,
-            unique: true,
-            trim: true,
-            lowercase: true,
-        },
-        phone: {
-            type: String,
-            trim: true,
-            default: '',
-        },
-        passwordHash: {
-            type: String,
-            required: true,
-        },
-    },
-    {
-        versionKey: false,
-        timestamps: true,
-    }
-);
-
-const petSchema = new mongoose.Schema(
-    {
-        owner: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            required: true,
-        },
-        name: {
-            type: String,
-            required: true,
-            trim: true,
-        },
-        age: {
-            type: String,
-            required: true,
-            trim: true,
-        },
-        examsStatus: {
-            type: String,
-            trim: true,
-            default: 'Nao informado',
-        },
-        veterinarian: {
-            type: String,
-            trim: true,
-            default: 'Nao informado',
-        },
-        vaccinesStatus: {
-            type: String,
-            trim: true,
-            default: 'Nao informado',
-        },
-        description: {
-            type: String,
-            trim: true,
-            default: 'Sem descricao cadastrada.',
-        },
-        imageUrl: {
-            type: String,
-            trim: true,
-            default: DEFAULT_PET_IMAGE,
-        },
-    },
-    {
-        versionKey: false,
-        timestamps: true,
-    }
-);
-
-const User = mongoose.model('usuarios', userSchema);
-const Pet = mongoose.model('pets', petSchema);
 
 function normalizeUser(user) {
     return {
@@ -140,7 +74,18 @@ app.get('/api/health', (_request, response) => {
     response.json({ ok: true });
 });
 
-app.post('/api/users/register', async (request, response) => {
+app.get("/api/user/register", function(request, response) {
+    console.log("MORTE E SOFRIMENTO".red)
+    let nome = request.query.nome;
+    let email = request.query.email;
+    let telefone = request.query.telefone;
+    let password = request.query.password;
+
+    
+    console.log(nome, email, telefone, password)
+})
+
+app.post("/api/users/register", async (request, response) => {
     try {
         const { nome, email, telefone, password } = request.body;
         const normalizedEmail = String(email || '').toLowerCase().trim();
@@ -260,10 +205,13 @@ app.post('/api/users/logout', (request, response) => {
     });
 });
 
+// essa parte nunca acontece arruma ela
 app.get('/api/pets', async (request, response) => {
+    console.log("SESSION:", request.session);
+    console.log("QUERY:", request.query);
     console.log("AAAAAAAAAAAAAAAAAAAAAAAAA".rainbow)
     try {
-        const ownerId = resolveOwnerId(request.query.ownerId || request.session.ownerId);
+        const filters = { db_owner: ownerId };  // também string
 
         if (!ownerId) {
             return response.json({ pets: [] });
@@ -304,14 +252,14 @@ app.post('/api/pets', async (request, response) => {
         //console.log("collection do User:", usuarios.collection.name)
         console.log("body recebido:", request.body);
 
+        // ✅ Validar inputs primeiro
         if (!nome || !idade) {
-            console.log("tutores")
             return response.status(400).json({ message: 'Nome e idade do pet sao obrigatorios.' });
         }
 
-        console.log("/api/pets: "+ request.session.ownerId)
+        // Depois buscar o owner
+        const owner = await usuarios.findOne({ _id: new mongodb.ObjectId(sessionOwnerId) });
         if (!owner) {
-            console.log("usario nao encontrado")
             return response.status(404).json({ message: 'Usuario responsavel nao encontrado.' });
         }
 
@@ -353,6 +301,7 @@ app.get('/', (_request, response) => {
 
 async function startServer() {
     try {
+        await client.connect();
         await mongoose.connect(MONGO_URI);
         console.log('MongoDB conectado com sucesso.'.green);
 
@@ -360,7 +309,8 @@ async function startServer() {
             console.log(`SilkPets rodando em http://localhost:${PORT}`.rainbow);
         });
     } catch (error) {
-        console.error('Falha ao iniciar o servidor:', error.message);
+        console.error('Falha ao conectar ao MongoDB:', error.message);
+        console.error('Verifique se o IP desta maquina esta liberado no MongoDB Atlas (Network Access).'.yellow);
         process.exit(1);
     }
 }
