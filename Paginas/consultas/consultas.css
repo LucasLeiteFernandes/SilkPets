@@ -25,16 +25,14 @@ body {
 	background-color: #efefef;
 	background-image: url("../../Imagens/fundoPatas.png");
 	background-size: 300px 300px;
-	background-repeat: repeat;
 }
 
 .shell {
 	width: min(1100px, calc(100% - 48px));
 	margin: 0 auto;
-	max-width: 900px;
+	max-width: 1000px;
 }
 
-/* ============ Topbar ============ */
 .topbar {
 	background: var(--red);
 	border-bottom: 1px solid rgba(0, 0, 0, 0.2);

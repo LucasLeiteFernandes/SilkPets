@@ -25,7 +25,6 @@ body {
 	background-color: #efefef;
 	background-image: url("../../Imagens/fundoPatas.png");
 	background-size: 300px 300px;
-	
 }
 
 .shell {
@@ -34,7 +33,6 @@ body {
 	max-width: 1000px;
 }
 
-/* ============ Topbar ============ */
 .topbar {
 	background: var(--red);
 	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
