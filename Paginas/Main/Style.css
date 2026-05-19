@@ -24,6 +24,7 @@ body {
 	background-color: #efefef;
 	background-image: url("./Imagens/fundoPatas.png");
 	background-size: 300, 300px;
+	background-repeat: repeat;
 }
 
 .shell {

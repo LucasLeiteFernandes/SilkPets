@@ -23,13 +23,14 @@ body {
 	color: var(--ink);
 	font-family: Georgia, "Times New Roman", Times, serif;
 	background-color: #efefef;
-	background-image: url("./imagens/image.png");
-	background-size: 260px 260px;
+	background-image: url("./imagens/fundoPatas.png");
+	background-size: 300px 300px;
 }
 
 .shell {
 	width: min(1100px, calc(100% - 48px));
 	margin: 0 auto;
+	max-width: 1000px;
 }
 
 .topbar {
